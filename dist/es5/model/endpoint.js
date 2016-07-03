@@ -137,7 +137,7 @@ exports['default'] = function (request) {
 
                 if (path) {
                     if (typeof path === 'string') {
-                        path = path.split(PATH_SEPARATOR);
+                        path = path.trim(PATH_SEPARATOR).split(PATH_SEPARATOR);
                     }
 
                     if (!relative) {
@@ -145,7 +145,7 @@ exports['default'] = function (request) {
                     }
 
                     path.forEach(function (item) {
-                        childScope.push('path', item.toString().trim(PATH_SEPARATOR));
+                        childScope.push('path', item);
                     });
                 }
 

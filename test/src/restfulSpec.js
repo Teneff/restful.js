@@ -37,6 +37,14 @@ describe('Restful', () => {
         delete global.window;
     });
 
+	it('should create an endpoint with promise', () => {
+		const client = restful(Promise.resolve('http://url'));
+		expect( client.url ).to.eventually.equal('http://url');
+
+		const endpoint = client.all('test');
+		expect( endpoint.url ).to.eventually.equal('http://url/test');
+	});
+
     it('should work with a real API', (done) => {
         api(nock);
         const client = restful('http://localhost', requestBackend(request));
