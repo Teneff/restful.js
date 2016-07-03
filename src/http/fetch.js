@@ -20,50 +20,55 @@ function parseBody(response) {
 
 export default function (fetch) {
     return (config) => {
-        const url = config.url;
-        delete config.url;
 
-        if (config.data) {
-            config.body = /application\/json/.test(config.headers['Content-Type']) ? JSON.stringify(config.data) : config.data;
-            delete config.data;
-        }
+		return config.url.then(( url ) => {
 
-        const queryString = qs.stringify(config.params || {}, { arrayFormat: 'brackets' });
-        delete config.params;
+			delete config.url;
 
-        return fetch(!queryString.length ? url : `${url}?${queryString}`, config)
-            .then((response) => {
-                return parseBody(response).then((json) => {
-                    let headers = {};
+	        if (config.data) {
+	            config.body = /application\/json/.test(config.headers['Content-Type']) ? JSON.stringify(config.data) : config.data;
+	            delete config.data;
+	        }
 
-                    if (typeof Headers.prototype.forEach === 'function') {
-                        response.headers.forEach((value, name) => {
-                            headers[name] = value
-                        })
-                    } else if (typeof Headers.prototype.keys === 'function') {
-                        const keys = response.headers.keys();
-                        for (const key of keys) {
-                            headers[key] = response.headers.get(key);
-                        }
-                    } else {
-                        headers = response.headers
-                    }
 
-                    const responsePayload = {
-                        data: json,
-                        headers: headers,
-                        method: config.method ? config.method.toLowerCase() : 'get',
-                        statusCode: response.status,
-                    };
+	        const queryString = qs.stringify(config.params || {}, { arrayFormat: 'brackets' });
+	        delete config.params;
 
-                    if (response.status >= 200 && response.status < 300) {
-                        return responsePayload;
-                    }
+	        return fetch(!queryString.length ? url : `${url}?${queryString}`, config)
+	            .then((response) => {
+	                return parseBody(response).then((json) => {
+	                    let headers = {};
 
-                    const error = new Error(response.statusText);
-                    error.response = responsePayload;
-                    throw error;
-                });
-            });
+	                    if (typeof Headers.prototype.forEach === 'function') {
+	                        response.headers.forEach((value, name) => {
+	                            headers[name] = value
+	                        })
+	                    } else if (typeof Headers.prototype.keys === 'function') {
+	                        const keys = response.headers.keys();
+	                        for (const key of keys) {
+	                            headers[key] = response.headers.get(key);
+	                        }
+	                    } else {
+	                        headers = response.headers
+	                    }
+
+	                    const responsePayload = {
+	                        data: json,
+	                        headers: headers,
+	                        method: config.method ? config.method.toLowerCase() : 'get',
+	                        statusCode: response.status,
+	                    };
+
+	                    if (response.status >= 200 && response.status < 300) {
+	                        return responsePayload;
+	                    }
+
+	                    const error = new Error(response.statusText);
+	                    error.response = responsePayload;
+	                    throw error;
+	                });
+	            });
+
+		});
     };
 }

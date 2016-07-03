@@ -1,4 +1,8 @@
-import { expect } from 'chai';
+import chai from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+var expect = chai.expect;
+chai.use( chaiAsPromised );
+
 import endpointModel from '../../../src/model/endpoint';
 import { Map } from 'immutable';
 import scopeModel from '../../../src/model/scope';
@@ -16,7 +20,7 @@ describe('Endpoint model', () => {
         })));
 
         scope = scopeModel();
-        scope.set('url', '/url');
+        scope.push('path', 'url');
         scope.assign('config', 'entityIdentifier', 'id');
         sinon.spy(scope, 'on');
         endpoint = endpointModel(request)(scope);
@@ -26,33 +30,43 @@ describe('Endpoint model', () => {
         it('should call request with correct config when called with no argument', () => {
             endpoint.get();
 
-            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
-                errorInterceptors: [],
-                headers: {},
-                method: 'GET',
-                params: null,
-                requestInterceptors: [],
-                responseInterceptors: [],
-                url: '/url',
-            });
+			expect(request.getCall(0).args[0].toJS()).to.have.property('errorInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('headers')
+				.that.deep.equal({});
+			expect(request.getCall(0).args[0].toJS()).to.have.property('method', 'GET');
+			expect(request.getCall(0).args[0].toJS()).to.have.property('params', null);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('requestInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('responseInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('url')
+				.that.is.a('Promise')
+				.and.eventually.equal('/url');
         });
 
         it('should call request with correct config when called with params and headers', () => {
             endpoint.get({ filter: 'asc' }, { Authorization: 'Token xxxx' });
 
-            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
-                errorInterceptors: [],
-                headers: {
-                    Authorization: 'Token xxxx',
-                },
-                method: 'GET',
-                params: {
-                    filter: 'asc',
-                },
-                requestInterceptors: [],
-                responseInterceptors: [],
-                url: '/url',
-            });
+			expect(request.getCall(0).args[0].toJS()).to.have.property('errorInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('headers')
+				.that.deep.equal({
+					Authorization: 'Token xxxx',
+				});
+			expect(request.getCall(0).args[0].toJS()).to.have.property('method', 'GET');
+			expect(request.getCall(0).args[0].toJS()).to.have.property('params')
+				.that.deep.equal({
+					filter: 'asc',
+				});
+			expect(request.getCall(0).args[0].toJS()).to.have.property('requestInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('responseInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('url')
+				.that.is.a('Promise')
+				.and.eventually.equal('/url');
+
         });
     });
 
@@ -63,21 +77,27 @@ describe('Endpoint model', () => {
                 'data',
             ]);
 
-            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
-                data: [
+			expect(request.getCall(0).args[0].toJS()).to.have.property('data')
+				.that.deep.equal([
                     'request',
                     'data',
-                ],
-                errorInterceptors: [],
-                headers: {
-                    'Content-Type': 'application/json;charset=UTF-8',
-                },
-                method: 'POST',
-                params: null,
-                requestInterceptors: [],
-                responseInterceptors: [],
-                url: '/url',
-            });
+                ]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('errorInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('headers')
+				.that.deep.equal({
+					'Content-Type': 'application/json;charset=UTF-8',
+				});
+			expect(request.getCall(0).args[0].toJS()).to.have.property('method', 'POST');
+			expect(request.getCall(0).args[0].toJS()).to.have.property('params', null);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('requestInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('responseInterceptors')
+				.that.deep.equal([]);
+
+			expect(request.getCall(0).args[0].toJS()).to.have.property('url')
+				.that.is.a('Promise')
+				.and.eventually.equal('/url');
         });
 
         it('should call request with correct config when called with data and headers', () => {
@@ -90,24 +110,31 @@ describe('Endpoint model', () => {
                 hello: 'world',
             });
 
-            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
-                data: [
+			expect(request.getCall(0).args[0].toJS()).to.have.property('data')
+				.that.deep.equal([
                     'request',
                     'data',
-                ],
-                errorInterceptors: [],
-                headers: {
-                    'Content-Type': 'application/json;charset=UTF-8',
-                    hello: 'world',
-                },
-                method: 'POST',
-                params: {
-                    goodbye: 'planet',
-                },
-                requestInterceptors: [],
-                responseInterceptors: [],
-                url: '/url',
-            });
+                ]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('errorInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('headers')
+				.that.deep.equal({
+					'Content-Type': 'application/json;charset=UTF-8',
+					hello: 'world',
+				});
+			expect(request.getCall(0).args[0].toJS()).to.have.property('method', 'POST');
+			expect(request.getCall(0).args[0].toJS()).to.have.property('params')
+				.that.deep.equal({
+					goodbye: 'planet',
+				});
+			expect(request.getCall(0).args[0].toJS()).to.have.property('requestInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('responseInterceptors')
+				.that.deep.equal([]);
+
+			expect(request.getCall(0).args[0].toJS()).to.have.property('url')
+				.that.is.a('Promise')
+				.and.eventually.equal('/url');
         });
     });
 
@@ -118,21 +145,26 @@ describe('Endpoint model', () => {
                 'data',
             ]);
 
-            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
-                data: [
+			expect(request.getCall(0).args[0].toJS()).to.have.property('data')
+				.that.deep.equal([
                     'request',
                     'data',
-                ],
-                errorInterceptors: [],
-                headers: {
-                    'Content-Type': 'application/json;charset=UTF-8',
-                },
-                method: 'PUT',
-                params: null,
-                requestInterceptors: [],
-                responseInterceptors: [],
-                url: '/url',
-            });
+                ]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('errorInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('headers')
+				.that.deep.equal({
+					'Content-Type': 'application/json;charset=UTF-8',
+				});
+			expect(request.getCall(0).args[0].toJS()).to.have.property('method', 'PUT');
+			expect(request.getCall(0).args[0].toJS()).to.have.property('params', null);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('requestInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('responseInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('url')
+				.that.is.a('Promise')
+				.and.eventually.equal('/url');
         });
 
         it('should call request with correct config when called with data and headers', () => {
@@ -145,24 +177,30 @@ describe('Endpoint model', () => {
                 hello: 'world',
             });
 
-            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
-                data: [
+			expect(request.getCall(0).args[0].toJS()).to.have.property('data')
+				.that.deep.equal([
                     'request',
                     'data',
-                ],
-                errorInterceptors: [],
-                headers: {
+                ]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('errorInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('headers')
+				.that.deep.equal({
                     'Content-Type': 'application/json;charset=UTF-8',
                     hello: 'world',
-                },
-                method: 'PUT',
-                params: {
+                });
+			expect(request.getCall(0).args[0].toJS()).to.have.property('method', 'PUT');
+			expect(request.getCall(0).args[0].toJS()).to.have.property('params')
+				.that.deep.equal({
                     goodbye: 'planet',
-                },
-                requestInterceptors: [],
-                responseInterceptors: [],
-                url: '/url',
-            });
+                });
+			expect(request.getCall(0).args[0].toJS()).to.have.property('requestInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('responseInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('url')
+				.that.is.a('Promise')
+				.and.eventually.equal('/url');
         });
     });
 
@@ -173,21 +211,26 @@ describe('Endpoint model', () => {
                 'data',
             ]);
 
-            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
-                data: [
+			expect(request.getCall(0).args[0].toJS()).to.have.property('data')
+				.that.deep.equal([
                     'request',
                     'data',
-                ],
-                errorInterceptors: [],
-                headers: {
+                ]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('errorInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('headers')
+				.that.deep.equal({
                     'Content-Type': 'application/json;charset=UTF-8',
-                },
-                method: 'PATCH',
-                params: null,
-                requestInterceptors: [],
-                responseInterceptors: [],
-                url: '/url',
-            });
+                });
+			expect(request.getCall(0).args[0].toJS()).to.have.property('method', 'PATCH');
+			expect(request.getCall(0).args[0].toJS()).to.have.property('params', null);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('requestInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('responseInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('url')
+				.that.is.a('Promise')
+				.and.eventually.equal('/url');
         });
 
         it('should call request with correct config when called with data and headers', () => {
@@ -200,24 +243,30 @@ describe('Endpoint model', () => {
                 hello: 'world',
             });
 
-            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
-                data: [
-                    'request',
-                    'data',
-                ],
-                errorInterceptors: [],
-                headers: {
-                    'Content-Type': 'application/json;charset=UTF-8',
-                    hello: 'world',
-                },
-                method: 'PATCH',
-                params: {
+			expect(request.getCall(0).args[0].toJS()).to.have.property('data')
+				.that.deep.equal([
+					'request',
+					'data',
+				]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('errorInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('headers')
+				.that.deep.equal({
+					'Content-Type': 'application/json;charset=UTF-8',
+					hello: 'world',
+				});
+			expect(request.getCall(0).args[0].toJS()).to.have.property('method', 'PATCH');
+			expect(request.getCall(0).args[0].toJS()).to.have.property('params')
+				.that.deep.equal({
                     goodbye: 'planet',
-                },
-                requestInterceptors: [],
-                responseInterceptors: [],
-                url: '/url',
-            });
+                });
+			expect(request.getCall(0).args[0].toJS()).to.have.property('requestInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('responseInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('url')
+				.that.is.a('Promise')
+				.and.eventually.equal('/url');
         });
     });
 
@@ -228,21 +277,26 @@ describe('Endpoint model', () => {
                 'data',
             ]);
 
-            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
-                data: [
-                    'request',
-                    'data',
-                ],
-                errorInterceptors: [],
-                headers: {
-                    'Content-Type': 'application/json;charset=UTF-8',
-                },
-                method: 'DELETE',
-                params: null,
-                requestInterceptors: [],
-                responseInterceptors: [],
-                url: '/url',
-            });
+			expect(request.getCall(0).args[0].toJS()).to.have.property('data')
+				.that.deep.equal([
+					'request',
+					'data',
+				]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('errorInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('headers')
+				.that.deep.equal({
+					'Content-Type': 'application/json;charset=UTF-8',
+				});
+			expect(request.getCall(0).args[0].toJS()).to.have.property('method', 'DELETE');
+			expect(request.getCall(0).args[0].toJS()).to.have.property('params', null);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('requestInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('responseInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('url')
+				.that.is.a('Promise')
+				.and.eventually.equal('/url');
         });
 
         it('should call request with correct config when called with data and headers', () => {
@@ -255,24 +309,30 @@ describe('Endpoint model', () => {
                 hello: 'world',
             });
 
-            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
-                data: [
-                    'request',
-                    'data',
-                ],
-                errorInterceptors: [],
-                headers: {
-                    'Content-Type': 'application/json;charset=UTF-8',
-                    hello: 'world',
-                },
-                method: 'DELETE',
-                params: {
-                    goodbye: 'planet',
-                },
-                requestInterceptors: [],
-                responseInterceptors: [],
-                url: '/url',
-            });
+			expect(request.getCall(0).args[0].toJS()).to.have.property('data')
+				.that.deep.equal([
+					'request',
+					'data',
+				]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('errorInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('headers')
+				.that.deep.equal({
+					'Content-Type': 'application/json;charset=UTF-8',
+					hello: 'world',
+				});
+			expect(request.getCall(0).args[0].toJS()).to.have.property('method', 'DELETE');
+			expect(request.getCall(0).args[0].toJS()).to.have.property('params')
+				.that.deep.equal({
+					goodbye: 'planet',
+				});
+			expect(request.getCall(0).args[0].toJS()).to.have.property('requestInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('responseInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('url')
+				.that.is.a('Promise')
+				.and.eventually.equal('/url');
         });
     });
 
@@ -280,33 +340,42 @@ describe('Endpoint model', () => {
         it('should call request with correct config when called with no argument', () => {
             endpoint.head();
 
-            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
-                errorInterceptors: [],
-                headers: {},
-                method: 'HEAD',
-                params: null,
-                requestInterceptors: [],
-                responseInterceptors: [],
-                url: '/url',
-            });
+			expect(request.getCall(0).args[0].toJS()).to.have.property('errorInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('headers')
+				.that.deep.equal({});
+			expect(request.getCall(0).args[0].toJS()).to.have.property('method', 'HEAD');
+			expect(request.getCall(0).args[0].toJS()).to.have.property('params', null);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('requestInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('responseInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('url')
+				.that.is.a('Promise')
+				.and.eventually.equal('/url');
         });
 
         it('should call request with correct config when called with params and headers', () => {
             endpoint.head({ filter: 'asc' }, { Authorization: 'Token xxxx' });
 
-            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
-                errorInterceptors: [],
-                headers: {
-                    Authorization: 'Token xxxx',
-                },
-                method: 'HEAD',
-                params: {
-                    filter: 'asc',
-                },
-                requestInterceptors: [],
-                responseInterceptors: [],
-                url: '/url',
-            });
+			expect(request.getCall(0).args[0].toJS()).to.have.property('errorInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('headers')
+				.that.deep.equal({
+					Authorization: 'Token xxxx',
+				});
+			expect(request.getCall(0).args[0].toJS()).to.have.property('method', 'HEAD');
+			expect(request.getCall(0).args[0].toJS()).to.have.property('params')
+				.that.deep.equal({
+					filter: 'asc'
+				});
+			expect(request.getCall(0).args[0].toJS()).to.have.property('requestInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('responseInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('url')
+				.that.is.a('Promise')
+				.and.eventually.equal('/url');
         });
     });
 
@@ -316,15 +385,19 @@ describe('Endpoint model', () => {
 
             endpoint.get();
 
-            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
-                errorInterceptors: [],
-                headers: {},
-                method: 'GET',
-                params: null,
-                requestInterceptors: [{ hello: 'world' }],
-                responseInterceptors: [],
-                url: '/url',
-            });
+			expect(request.getCall(0).args[0].toJS()).to.have.property('errorInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('headers')
+				.that.deep.equal({});
+			expect(request.getCall(0).args[0].toJS()).to.have.property('method', 'GET');
+			expect(request.getCall(0).args[0].toJS()).to.have.property('params', null);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('requestInterceptors')
+				.that.deep.equal([{ hello: 'world' }]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('responseInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('url')
+				.that.is.a('Promise')
+				.and.eventually.equal('/url');
         });
 
         it('should add a response interceptor and pass it to the request callback when one request is performed', () => {
@@ -332,15 +405,19 @@ describe('Endpoint model', () => {
 
             endpoint.get();
 
-            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
-                errorInterceptors: [],
-                headers: {},
-                method: 'GET',
-                params: null,
-                requestInterceptors: [],
-                responseInterceptors: [{ hello2: 'world2' }],
-                url: '/url',
-            });
+			expect(request.getCall(0).args[0].toJS()).to.have.property('errorInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('headers')
+				.that.deep.equal({});
+			expect(request.getCall(0).args[0].toJS()).to.have.property('method', 'GET');
+			expect(request.getCall(0).args[0].toJS()).to.have.property('params', null);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('requestInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('responseInterceptors')
+				.that.deep.equal([{ hello2: 'world2' }],);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('url')
+				.that.is.a('Promise')
+				.and.eventually.equal('/url');
         });
 
         it('should add a error interceptor and pass it to the request callback when one request is performed', () => {
@@ -348,15 +425,19 @@ describe('Endpoint model', () => {
 
             endpoint.get();
 
-            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
-                errorInterceptors: [{ hello3: 'world3' }],
-                headers: {},
-                method: 'GET',
-                params: null,
-                requestInterceptors: [],
-                responseInterceptors: [],
-                url: '/url',
-            });
+			expect(request.getCall(0).args[0].toJS()).to.have.property('errorInterceptors')
+				.that.deep.equal([{ hello3: 'world3' }]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('headers')
+				.that.deep.equal({});
+			expect(request.getCall(0).args[0].toJS()).to.have.property('method', 'GET');
+			expect(request.getCall(0).args[0].toJS()).to.have.property('params', null);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('requestInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('responseInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('url')
+				.that.is.a('Promise')
+				.and.eventually.equal('/url');
         });
     });
 
@@ -365,46 +446,53 @@ describe('Endpoint model', () => {
             endpoint.header('Authorization', 'xxxx');
             endpoint.get(null, { hello: 'world' });
 
-            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
-                errorInterceptors: [],
-                headers: {
-                    Authorization: 'xxxx',
+			expect(request.getCall(0).args[0].toJS()).to.have.property('errorInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('headers')
+				.that.deep.equal({
+					Authorization: 'xxxx',
                     hello: 'world',
-                },
-                method: 'GET',
-                params: null,
-                requestInterceptors: [],
-                responseInterceptors: [],
-                url: '/url',
-            });
+				});
+			expect(request.getCall(0).args[0].toJS()).to.have.property('method', 'GET');
+			expect(request.getCall(0).args[0].toJS()).to.have.property('params', null);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('requestInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('responseInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('url')
+				.that.is.a('Promise')
+				.and.eventually.equal('/url');
         });
 
         it('should override existing headers when performing a request with the same header name', () => {
             endpoint.header('Authorization', 'xxxx');
             endpoint.get(null, { Authorization: 'yyyy' });
 
-            expect(request.getCall(0).args[0].toJS()).to.deep.equal({
-                errorInterceptors: [],
-                headers: {
-                    Authorization: 'yyyy',
-                },
-                method: 'GET',
-                params: null,
-                requestInterceptors: [],
-                responseInterceptors: [],
-                url: '/url',
-            });
+			expect(request.getCall(0).args[0].toJS()).to.have.property('errorInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('headers')
+				.that.deep.equal({
+					Authorization: 'yyyy',
+				});
+			expect(request.getCall(0).args[0].toJS()).to.have.property('method', 'GET');
+			expect(request.getCall(0).args[0].toJS()).to.have.property('params', null);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('requestInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('responseInterceptors')
+				.that.deep.equal([]);
+			expect(request.getCall(0).args[0].toJS()).to.have.property('url')
+				.that.eventually.equal('/url');
         });
     });
 
     it('should return the endpoint url when url is called', () => {
-        expect(endpoint.url()).to.equal('/url');
+		expect( endpoint.url ).to.eventually.equal('/url');
     });
 
     it('should create a child endpoint when new is called with a child scope', () => {
         const childEndpoint = endpoint.new('/url2');
 
-        expect(childEndpoint.url()).to.equal('/url2');
+		expect( childEndpoint.url ).to.eventually.equal('/url2');
 
         endpoint.header('Authorization', 'xxxx');
         endpoint.header('hello', 'world');
@@ -415,24 +503,27 @@ describe('Endpoint model', () => {
 
         childEndpoint.post({ content: 'test' });
 
-        expect(request.getCall(0).args[0].toJS()).to.deep.equal({
-            data: { content: 'test' },
-            errorInterceptors: [],
-            headers: {
+		expect(request.getCall(0).args[0].toJS()).to.have.property('data')
+			.that.deep.equal({ content: 'test' });
+		expect(request.getCall(0).args[0].toJS()).to.have.property('errorInterceptors')
+			.that.deep.equal([]);
+		expect(request.getCall(0).args[0].toJS()).to.have.property('headers')
+			.that.deep.equal({
                 Authorization: 'xxxx',
                 'Content-Type': 'application/json;charset=UTF-8',
                 hello: 'planet',
-            },
-            method: 'POST',
-            params: null,
-            requestInterceptors: [
-                { alpha: 'beta' },
-            ],
-            responseInterceptors: [
-                { omega: 'gamma' },
-            ],
-            url: '/url2',
-        });
+            });
+		expect(request.getCall(0).args[0].toJS()).to.have.property('method', 'POST');
+		expect(request.getCall(0).args[0].toJS()).to.have.property('params', null);
+		expect(request.getCall(0).args[0].toJS()).to.have.property('requestInterceptors')
+			.that.deep.equal([{
+				alpha: 'beta'
+			}]);
+		expect(request.getCall(0).args[0].toJS()).to.have.property('responseInterceptors')
+			.that.deep.equal([{
+				omega: 'gamma'
+			}]);
+		expect(request.getCall(0).args[0].toJS()).to.have.property('method', 'POST');
     });
 
     it('should emit a response event when a response is received', (done) => {
@@ -443,15 +534,21 @@ describe('Endpoint model', () => {
             expect(listener.getCall(0).args[0].body(false)).to.deep.equal({
                 result: true,
             });
-            expect(listener.getCall(0).args[1]).to.deep.equal({
-                errorInterceptors: [],
-                headers: {},
-                method: 'GET',
-                params: null,
-                requestInterceptors: [],
-                responseInterceptors: [],
-                url: '/url',
-            });
+
+			expect(listener.getCall(0).args[1]).to.have.property('errorInterceptors')
+				.that.deep.equal([]);
+			expect(listener.getCall(0).args[1]).to.have.property('headers')
+				.that.deep.equal({});
+			expect(listener.getCall(0).args[1]).to.have.property('method', 'GET');
+			expect(listener.getCall(0).args[1]).to.have.property('params', null);
+			expect(listener.getCall(0).args[1]).to.have.property('requestInterceptors')
+				.that.deep.equal([]);
+			expect(listener.getCall(0).args[1]).to.have.property('responseInterceptors')
+				.that.deep.equal([]);
+			expect(listener.getCall(0).args[1]).to.have.property('url')
+				.that.is.a('Promise')
+				.and.eventually.equal('/url');
+
             expect(response.body(false)).to.deep.equal({
                 result: true,
             });
@@ -466,18 +563,23 @@ describe('Endpoint model', () => {
         request.returns(Promise.reject(new Error('Oops')));
 
         endpoint.get().then(done.bind(done, ['It should throw an error']), (error) => {
-            expect(listener.getCall(0).args).to.deep.equal([
-                new Error('Oops'),
-                {
-                    errorInterceptors: [],
-                    headers: {},
-                    method: 'GET',
-                    params: null,
-                    requestInterceptors: [],
-                    responseInterceptors: [],
-                    url: '/url',
-                },
-            ]);
+
+			expect(listener.getCall(0).args).to.have.deep.property('[0]')
+				.that.deep.equal(new Error('Oops'));
+			expect(listener.getCall(0).args).to.have.deep.property('[1].errorInterceptors')
+				.that.deep.equal([]);
+			expect(listener.getCall(0).args).to.have.deep.property('[1].headers')
+				.that.deep.equal({});
+			expect(listener.getCall(0).args).to.have.deep.property('[1].method', 'GET');
+			expect(listener.getCall(0).args).to.have.deep.property('[1].params', null);
+			expect(listener.getCall(0).args).to.have.deep.property('[1].requestInterceptors')
+				.that.deep.equal([]);
+			expect(listener.getCall(0).args).to.have.deep.property('[1].responseInterceptors')
+				.that.deep.equal([]);
+			expect(listener.getCall(0).args).to.have.deep.property('[1].url')
+				.that.is.a('Promise')
+				.and.eventually.equal('/url');
+
             expect(error.message).to.equal('Oops');
             done();
         }).catch(done);
@@ -485,24 +587,29 @@ describe('Endpoint model', () => {
 
     it('should emit event across parent endpoints', (done) => {
         const listener = sinon.spy();
-        const childEndpoint = endpoint.new('/child');
+        const childEndpoint = endpoint.new('child');
         endpoint.on('error', listener);
 
         request.returns(Promise.reject(new Error('Oops')));
 
-        childEndpoint.get().then(done.bind(done, ['It should throw an error']), (error) => {
-            expect(listener.getCall(0).args).to.deep.equal([
-                new Error('Oops'),
-                {
-                    errorInterceptors: [],
-                    headers: {},
-                    method: 'GET',
-                    params: null,
-                    requestInterceptors: [],
-                    responseInterceptors: [],
-                    url: '/child',
-                },
-            ]);
+		childEndpoint.get().then(done.bind(done, ['It should throw an error']), (error) => {
+
+			expect(listener.getCall(0).args).to.have.deep.property('[0]')
+				.that.deep.equal(new Error('Oops'));
+			expect(listener.getCall(0).args).to.have.deep.property('[1].errorInterceptors')
+				.that.deep.equal([]);
+			expect(listener.getCall(0).args).to.have.deep.property('[1].headers')
+				.that.deep.equal({});
+			expect(listener.getCall(0).args).to.have.deep.property('[1].method', 'GET');
+			expect(listener.getCall(0).args).to.have.deep.property('[1].params', null);
+			expect(listener.getCall(0).args).to.have.deep.property('[1].requestInterceptors')
+				.that.deep.equal([]);
+			expect(listener.getCall(0).args).to.have.deep.property('[1].responseInterceptors')
+				.that.deep.equal([]);
+			expect(listener.getCall(0).args).to.have.deep.property('[1].url')
+				.that.is.a('Promise')
+				.and.eventually.equal('child');
+
             expect(error.message).to.equal('Oops');
             done();
         }).catch(done);

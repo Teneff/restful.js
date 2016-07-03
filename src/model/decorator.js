@@ -2,11 +2,7 @@ import assign from 'object-assign';
 
 export function custom(endpoint) {
     return (name, relative = true) => {
-        if (relative) {
-            return member(endpoint.new(`${endpoint.url()}/${name}`)); // eslint-disable-line no-use-before-define
-        }
-
-        return member(endpoint.new(name)); // eslint-disable-line no-use-before-define
+        return member(endpoint.new(name, relative)); // eslint-disable-line no-use-before-define
     };
 }
 
@@ -14,7 +10,7 @@ export function collection(endpoint) {
     function _bindHttpMethod(method) {
         return (...args) => {
             const id = args.shift();
-            return member(endpoint.new(`${endpoint.url()}/${id}`))[method](...args);  // eslint-disable-line no-use-before-define
+            return member(endpoint.new([ id ]))[method](...args);  // eslint-disable-line no-use-before-define
         };
     }
 
@@ -31,8 +27,8 @@ export function collection(endpoint) {
 
 export function member(endpoint) {
     return assign(endpoint, {
-        all: (name) => collection(endpoint.new(`${endpoint.url()}/${name}`)),
+        all: (name) => collection(endpoint.new( name ) ),
         custom: custom(endpoint),
-        one: (name, id) => member(endpoint.new(`${endpoint.url()}/${name}/${id}`)),
+        one: (name, id) => member(endpoint.new( [name, id] )),
     });
 }

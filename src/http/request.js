@@ -1,5 +1,6 @@
 export default function (request) {
     return (config) => {
+
         if (config.data) {
             config.form = /application\/json/.test(config.headers['Content-Type']) ? JSON.stringify(config.data) : config.data;
             delete config.data;
@@ -10,35 +11,38 @@ export default function (request) {
             delete config.params;
         }
 
-        return new Promise((resolve, reject) => {
-            request(config, (err, response, body) => {
-                if (err) {
-                    throw err;
-                }
+		return config.url.then(( url ) => {
 
-                let data;
+			return new Promise((resolve, reject) => {
+	            request(Object.assign(config, {url: url}), (err, response, body) => {
+	                if (err) {
+	                    throw err;
+	                }
 
-                try {
-                    data = JSON.parse(body);
-                } catch (e) {
-                    data = body;
-                }
+	                let data;
 
-                const responsePayload = {
-                    data,
-                    headers: response.headers,
-                    statusCode: response.statusCode,
-                };
+	                try {
+	                    data = JSON.parse(body);
+	                } catch (e) {
+	                    data = body;
+	                }
 
-                if (response.statusCode >= 200 && response.statusCode < 300) {
-                    return resolve(responsePayload);
-                }
+	                const responsePayload = {
+	                    data,
+	                    headers: response.headers,
+	                    statusCode: response.statusCode,
+	                };
 
-                const error = new Error(response.statusMessage);
-                error.response = responsePayload;
+	                if (response.statusCode >= 200 && response.statusCode < 300) {
+	                    return resolve(responsePayload);
+	                }
 
-                reject(error);
-            });
-        });
+	                const error = new Error(response.statusMessage);
+	                error.response = responsePayload;
+
+	                reject(error);
+	            });
+	        });
+		});
     };
 }

@@ -3,6 +3,8 @@ import responseFactory from './response';
 import { fromJS, List, Map } from 'immutable';
 import serialize from '../util/serialize';
 
+const PATH_SEPARATOR = '/';
+
 /* eslint-disable new-cap */
 export default function(request) {
     return function endpointFactory(scope) {
@@ -17,7 +19,9 @@ export default function(request) {
                 params,
                 requestInterceptors: List(scope.get('requestInterceptors')),
                 responseInterceptors: List(scope.get('responseInterceptors')),
-                url: scope.get('url'),
+                url: Promise.all( scope.get('path') ).then((path) => {
+					return path.join(PATH_SEPARATOR);
+				}),
             });
 
             if (data) {
@@ -92,9 +96,22 @@ export default function(request) {
             head: _httpMethodFactory('HEAD', false),
             header: (key, value) => scope.assign('headers', key, value),
             headers: () => scope.get('headers'),
-            new: (url) => {
+            new: (path, relative = true) => {
                 const childScope = scope.new();
-                childScope.set('url', url);
+
+				if( path ) {
+					if( typeof path === 'string' ) {
+						path = path.split(PATH_SEPARATOR);
+					}
+
+					if( !relative ) {
+						childScope.set('path', List());
+					}
+
+					path.forEach((item) => {
+						childScope.push('path', item.toString().trim(PATH_SEPARATOR));
+					});
+				}
 
                 return endpointFactory(childScope);
             },
@@ -103,7 +120,10 @@ export default function(request) {
             patch: _httpMethodFactory('PATCH'),
             post: _httpMethodFactory('POST'),
             put: _httpMethodFactory('PUT'),
-            url: () => scope.get('url'),
+			path: () => scope.get('path'),
+			url: Promise.all( scope.get('path') ).then((path) => {
+				return path.join(PATH_SEPARATOR);
+			})
         });
 
         return endpoint;

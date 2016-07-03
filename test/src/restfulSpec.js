@@ -11,7 +11,7 @@ describe('Restful', () => {
             data: { output: 1 },
         })));
 
-        expect(client.url()).to.equal('http://url');
+		expect( client.url ).to.eventually.equal('http://url');
 
         client.get().then((response) => {
             expect(response.body(false)).to.deep.equal({
@@ -32,7 +32,7 @@ describe('Restful', () => {
 
         const client = restful();
 
-        expect(client.url()).to.equal('https://test.com');
+		expect( client.url ).to.eventually.equal('http://url');
 
         delete global.window;
     });

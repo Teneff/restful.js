@@ -9,7 +9,7 @@ describe('Fetch HTTP Backend', () => {
 
     global.Headers = () => {}
     global.Headers.prototype.keys = () => {}
-    
+
     beforeEach(() => {
         response = {
             headers: {
@@ -24,7 +24,7 @@ describe('Fetch HTTP Backend', () => {
     });
 
     it('should map config to be compatible with fetch package', () => {
-        httpBackend({
+        var request1 = httpBackend({
             data: {
                 me: 'you',
             },
@@ -34,20 +34,21 @@ describe('Fetch HTTP Backend', () => {
             params: {
                 asc: 1,
             },
-            url: '/url',
-        });
+			url: Promise.resolve('/url'),
+        })
+		.then(() => {
+			expect(fetch.getCall(0).args).to.deep.equal([
+	            '/url?asc=1',
+	            {
+	                body: '{"me":"you"}',
+	                headers: {
+	                    'Content-Type': 'application/json;charset=UTF-8',
+	                },
+	            },
+	        ]);
+		});
 
-        expect(fetch.getCall(0).args).to.deep.equal([
-            '/url?asc=1',
-            {
-                body: '{"me":"you"}',
-                headers: {
-                    'Content-Type': 'application/json;charset=UTF-8',
-                },
-            },
-        ]);
-
-        httpBackend({
+        var request2 = httpBackend({
             data: {
                 me: 'you',
             },
@@ -55,18 +56,21 @@ describe('Fetch HTTP Backend', () => {
             params: {
                 asc: 1,
             },
-            url: '/url',
-        });
+			url: Promise.resolve('/url'),
+        })
+		.then(() => {
+			expect(fetch.getCall(1).args).to.deep.equal([
+	            '/url?asc=1',
+	            {
+	                body: {
+	                    me: 'you',
+	                },
+	                headers: {},
+	            },
+	        ]);
+		});
 
-        expect(fetch.getCall(1).args).to.deep.equal([
-            '/url?asc=1',
-            {
-                body: {
-                    me: 'you',
-                },
-                headers: {},
-            },
-        ]);
+		return Promise.all([ request1, request2 ]);
     });
 
     it('should correctly format the response when it succeed', (done) => {
@@ -80,7 +84,7 @@ describe('Fetch HTTP Backend', () => {
             params: {
                 asc: 1,
             },
-            url: '/url',
+			url: Promise.resolve('/url'),
         })
         .then((response) => { // eslint-disable-line no-shadow
             expect(response).to.deep.equal({
@@ -111,7 +115,7 @@ describe('Fetch HTTP Backend', () => {
             params: {
                 asc: 1,
             },
-            url: '/url',
+			url: Promise.resolve('/url'),
         })
         .then((_response) => {
             expect(_response).to.deep.equal({
@@ -145,7 +149,7 @@ describe('Fetch HTTP Backend', () => {
             params: {
                 asc: 1,
             },
-            url: '/url',
+			url: Promise.resolve('/url'),
         })
         .then(done.bind(done, ['It should throw an error']), (error) => {
             expect(error.message).to.equal('Not Found');
@@ -166,7 +170,7 @@ describe('Fetch HTTP Backend', () => {
     });
 
     it('should correctly stringify the query string', () => {
-        httpBackend({
+        var request1 = httpBackend({
             data: {
                 me: 'you',
             },
@@ -181,36 +185,40 @@ describe('Fetch HTTP Backend', () => {
                     'email',
                 ],
             },
-            url: '/url',
-        });
+			url: Promise.resolve('/url'),
+        })
+		.then(() => {
+			expect(fetch.getCall(0).args).to.deep.equal([
+	            encodeURI('/url?asc=1&fields[]=name&fields[]=firstname&fields[]=email'),
+	            {
+	                body: '{"me":"you"}',
+	                headers: {
+	                    'Content-Type': 'application/json;charset=UTF-8',
+	                },
+	            },
+	        ]);
+		});
 
-        expect(fetch.getCall(0).args).to.deep.equal([
-            encodeURI('/url?asc=1&fields[]=name&fields[]=firstname&fields[]=email'),
-            {
-                body: '{"me":"you"}',
-                headers: {
-                    'Content-Type': 'application/json;charset=UTF-8',
-                },
-            },
-        ]);
-
-        httpBackend({
+        var request2 = httpBackend({
             data: {
                 me: 'you',
             },
             headers: {},
             params: {},
-            url: '/url',
-        });
+			url: Promise.resolve('/url'),
+        })
+		.then(() => {
+			expect(fetch.getCall(1).args).to.deep.equal([
+	            '/url',
+	            {
+	                body: {
+	                    me: 'you',
+	                },
+	                headers: {},
+	            },
+	        ]);
+		});
 
-        expect(fetch.getCall(1).args).to.deep.equal([
-            '/url',
-            {
-                body: {
-                    me: 'you',
-                },
-                headers: {},
-            },
-        ]);
+		return Promise.all([ request1, request2 ]);
     });
 });
