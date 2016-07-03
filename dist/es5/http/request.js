@@ -1,52 +1,56 @@
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+				value: true
 });
 
 exports['default'] = function (request) {
-    return function (config) {
-        if (config.data) {
-            config.form = /application\/json/.test(config.headers['Content-Type']) ? JSON.stringify(config.data) : config.data;
-            delete config.data;
-        }
+				return function (config) {
 
-        if (config.params) {
-            config.qs = config.params;
-            delete config.params;
-        }
+								if (config.data) {
+												config.form = /application\/json/.test(config.headers['Content-Type']) ? JSON.stringify(config.data) : config.data;
+												delete config.data;
+								}
 
-        return new Promise(function (resolve, reject) {
-            request(config, function (err, response, body) {
-                if (err) {
-                    throw err;
-                }
+								if (config.params) {
+												config.qs = config.params;
+												delete config.params;
+								}
 
-                var data = undefined;
+								return config.url.then(function (url) {
 
-                try {
-                    data = JSON.parse(body);
-                } catch (e) {
-                    data = body;
-                }
+												return new Promise(function (resolve, reject) {
+																request(Object.assign(config, { url: url }), function (err, response, body) {
+																				if (err) {
+																								throw err;
+																				}
 
-                var responsePayload = {
-                    data: data,
-                    headers: response.headers,
-                    statusCode: response.statusCode
-                };
+																				var data = undefined;
 
-                if (response.statusCode >= 200 && response.statusCode < 300) {
-                    return resolve(responsePayload);
-                }
+																				try {
+																								data = JSON.parse(body);
+																				} catch (e) {
+																								data = body;
+																				}
 
-                var error = new Error(response.statusMessage);
-                error.response = responsePayload;
+																				var responsePayload = {
+																								data: data,
+																								headers: response.headers,
+																								statusCode: response.statusCode
+																				};
 
-                reject(error);
-            });
-        });
-    };
+																				if (response.statusCode >= 200 && response.statusCode < 300) {
+																								return resolve(responsePayload);
+																				}
+
+																				var error = new Error(response.statusMessage);
+																				error.response = responsePayload;
+
+																				reject(error);
+																});
+												});
+								});
+				};
 };
 
 module.exports = exports['default'];

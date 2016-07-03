@@ -20,6 +20,8 @@ var _utilSerialize = require('../util/serialize');
 
 var _utilSerialize2 = _interopRequireDefault(_utilSerialize);
 
+var PATH_SEPARATOR = '/';
+
 /* eslint-disable new-cap */
 
 exports['default'] = function (request) {
@@ -37,7 +39,9 @@ exports['default'] = function (request) {
                 params: params,
                 requestInterceptors: (0, _immutable.List)(scope.get('requestInterceptors')),
                 responseInterceptors: (0, _immutable.List)(scope.get('responseInterceptors')),
-                url: scope.get('url')
+                url: Promise.all(scope.get('path')).then(function (path) {
+                    return path.join(PATH_SEPARATOR);
+                })
             });
 
             if (data) {
@@ -126,9 +130,24 @@ exports['default'] = function (request) {
             headers: function headers() {
                 return scope.get('headers');
             },
-            'new': function _new(url) {
+            'new': function _new(path) {
+                var relative = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
+
                 var childScope = scope['new']();
-                childScope.set('url', url);
+
+                if (path) {
+                    if (typeof path === 'string') {
+                        path = path.split(PATH_SEPARATOR);
+                    }
+
+                    if (!relative) {
+                        childScope.set('path', (0, _immutable.List)());
+                    }
+
+                    path.forEach(function (item) {
+                        childScope.push('path', item.toString().trim(PATH_SEPARATOR));
+                    });
+                }
 
                 return endpointFactory(childScope);
             },
@@ -137,9 +156,12 @@ exports['default'] = function (request) {
             patch: _httpMethodFactory('PATCH'),
             post: _httpMethodFactory('POST'),
             put: _httpMethodFactory('PUT'),
-            url: function url() {
-                return scope.get('url');
-            }
+            path: function path() {
+                return scope.get('path');
+            },
+            url: Promise.all(scope.get('path')).then(function (path) {
+                return path.join(PATH_SEPARATOR);
+            })
         });
 
         return endpoint;

@@ -17,11 +17,7 @@ function custom(endpoint) {
     return function (name) {
         var relative = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
 
-        if (relative) {
-            return member(endpoint['new'](endpoint.url() + '/' + name)); // eslint-disable-line no-use-before-define
-        }
-
-        return member(endpoint['new'](name)); // eslint-disable-line no-use-before-define
+        return member(endpoint['new'](name, relative)); // eslint-disable-line no-use-before-define
     };
 }
 
@@ -35,7 +31,7 @@ function collection(endpoint) {
             }
 
             var id = args.shift();
-            return (_member = member(endpoint['new'](endpoint.url() + '/' + id)))[method].apply(_member, args); // eslint-disable-line no-use-before-define
+            return (_member = member(endpoint['new']([id])))[method].apply(_member, args); // eslint-disable-line no-use-before-define
         };
     }
 
@@ -53,11 +49,11 @@ function collection(endpoint) {
 function member(endpoint) {
     return (0, _objectAssign2['default'])(endpoint, {
         all: function all(name) {
-            return collection(endpoint['new'](endpoint.url() + '/' + name));
+            return collection(endpoint['new'](name));
         },
         custom: custom(endpoint),
         one: function one(name, id) {
-            return member(endpoint['new'](endpoint.url() + '/' + name + '/' + id));
+            return member(endpoint['new']([name, id]));
         }
     });
 }

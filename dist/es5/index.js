@@ -34,9 +34,9 @@ function restful(baseUrl, httpBackend) {
     var rootScope = (0, _modelScope2['default'])();
     rootScope.assign('config', 'entityIdentifier', 'id');
     if (!baseUrl && typeof window !== 'undefined' && window.location) {
-        rootScope.set('url', window.location.protocol + '//' + window.location.host);
+        rootScope.push('path', window.location.protocol + '//' + window.location.host);
     } else {
-        rootScope.set('url', baseUrl);
+        rootScope.push('path', baseUrl);
     }
 
     var rootEndpoint = (0, _modelDecorator.member)((0, _modelEndpoint2['default'])((0, _serviceHttp2['default'])(httpBackend))(rootScope));
