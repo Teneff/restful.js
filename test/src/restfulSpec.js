@@ -2,7 +2,8 @@ import api from '../mock/api';
 import { expect } from 'chai';
 import nock from 'nock';
 import request from 'request';
-import restful, { requestBackend } from '../../src';
+import fetch from 'whatwg-fetch';
+import restful, { requestBackend, fetchBackend } from '../../src';
 import sinon from 'sinon';
 
 describe('Restful', () => {
@@ -39,10 +40,10 @@ describe('Restful', () => {
 
 	it('should create an endpoint with promise', () => {
 		const client = restful(Promise.resolve('http://url'));
-		expect( client.url ).to.eventually.equal('http://url');
+		expect(client.url).to.eventually.equal('http://urlx');
 
 		const endpoint = client.all('test');
-		expect( endpoint.url ).to.eventually.equal('http://url/test');
+		endpoint.url.should.to.eventually.equal('http://url/test');
 	});
 
     it('should work with a real API', (done) => {

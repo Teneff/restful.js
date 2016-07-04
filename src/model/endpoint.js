@@ -1,6 +1,6 @@
 import assign from 'object-assign';
 import responseFactory from './response';
-import { fromJS, List, Map } from 'immutable';
+import { fromJS, List, Map, Iterable } from 'immutable';
 import serialize from '../util/serialize';
 
 const PATH_SEPARATOR = '/';
@@ -19,7 +19,7 @@ export default function(request) {
                 params,
                 requestInterceptors: List(scope.get('requestInterceptors')),
                 responseInterceptors: List(scope.get('responseInterceptors')),
-                url: Promise.all( scope.get('path') ).then((path) => {
+				url: Promise.all( scope.get('path', false) ).then((path) => {
 					return path.join(PATH_SEPARATOR);
 				}),
             });
@@ -96,22 +96,17 @@ export default function(request) {
             head: _httpMethodFactory('HEAD', false),
             header: (key, value) => scope.assign('headers', key, value),
             headers: () => scope.get('headers'),
-            new: (path, relative = true) => {
+            new: (...path) => {
                 const childScope = scope.new();
 
-				if( path ) {
-					if( typeof path === 'string' ) {
-						path = path.trim(PATH_SEPARATOR).split(PATH_SEPARATOR);
+				path.forEach((item) => {
+					if( Iterable.isIterable(item) ) {
+						item.forEach((subitem) => childScope.push('path', subitem));
 					}
-
-					if( !relative ) {
-						childScope.set('path', List());
+					else {
+						childScope.push('path', item)
 					}
-
-					path.forEach((item) => {
-						childScope.push('path', item);
-					});
-				}
+				});
 
                 return endpointFactory(childScope);
             },
@@ -120,10 +115,10 @@ export default function(request) {
             patch: _httpMethodFactory('PATCH'),
             post: _httpMethodFactory('POST'),
             put: _httpMethodFactory('PUT'),
-			path: () => scope.get('path'),
-			url: Promise.all( scope.get('path') ).then((path) => {
+			path: () => scope.get('path', false),
+			url: Promise.all( scope.get('path', false) ).then((path) => {
 				return path.join(PATH_SEPARATOR);
-			})
+			}),
         });
 
         return endpoint;

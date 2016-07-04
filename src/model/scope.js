@@ -22,18 +22,18 @@ export default function scopeFactory(parentScope) {
                 parentScope.emit(...args);
             }
         },
-        get(key) {
+        get(key, deep = true) {
             const datum = _data.get(key);
 
             if ((scope.has(key) && !Iterable.isIterable(datum)) || !parentScope) {
                 return datum;
             } else if (!scope.has(key) && parentScope) {
-                return parentScope.get(key);
+                return parentScope.get(key, deep);
             }
 
-            const parentDatum = parentScope.get(key);
+            const parentDatum = parentScope.get(key, deep);
 
-            if (!parentDatum) {
+            if (!deep || !parentDatum) {
                 return datum;
             }
 

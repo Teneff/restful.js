@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import * as decorators from '../../../src/model/decorator';
+import { List, Map } from 'immutable';
 import sinon from 'sinon';
 
 describe('Decorator Model', () => {
@@ -8,7 +9,8 @@ describe('Decorator Model', () => {
     beforeEach(() => {
         endpoint = {
             new: sinon.stub().returns({ fake: true }),
-            url: sinon.stub().returns('/url'),
+            // url: sinon.stub().returns('/url'),
+			path: sinon.stub().returns(List.of('/url')),
         };
     });
 
@@ -27,11 +29,8 @@ describe('Decorator Model', () => {
             const childMember = member.one('articles', 1);
 
             expect(endpoint.new.getCall(0).args).to.deep.equal([
-				[
-					'articles',
-					1,
-				]
-            ]);
+				List().push('/url', 'articles', 1)
+			]);
             expect(childMember.fake).to.equal(true);
             expect(typeof(childMember.all)).to.equal('function');
             expect(typeof(childMember.custom)).to.equal('function');
@@ -44,8 +43,8 @@ describe('Decorator Model', () => {
             const articles = member.all('articles');
 
             expect(endpoint.new.getCall(0).args).to.deep.equal([
-				'articles',
-            ]);
+				List().push('/url', 'articles')
+			]);
 
             expect(articles.all).to.equal(undefined);
             expect(typeof(articles.custom)).to.equal('function');
@@ -57,8 +56,7 @@ describe('Decorator Model', () => {
             const test = member.custom('test/me');
 
             expect(endpoint.new.getCall(0).args).to.deep.equal([
-				'test/me',
-				true
+				List().push('/url', 'test/me'),
             ]);
 
             expect(typeof(test.one)).to.equal('function');
@@ -68,8 +66,7 @@ describe('Decorator Model', () => {
             const testAbsolute = member.custom('/test/me', false);
 
             expect(endpoint.new.getCall(1).args).to.deep.equal([
-				'/test/me',
-				false
+				List().push('/test/me'),
             ]);
 
             expect(typeof(testAbsolute.one)).to.equal('function');
@@ -91,8 +88,7 @@ describe('Decorator Model', () => {
             const test = collection.custom('test/me');
 
             expect(endpoint.new.getCall(0).args).to.deep.equal([
-				'test/me',
-				true
+				List().push('/url', 'test/me'),
             ]);
 
             expect(typeof(test.one)).to.equal('function');
@@ -102,8 +98,7 @@ describe('Decorator Model', () => {
             const testAbsolute = collection.custom('/test/me', false);
 
             expect(endpoint.new.getCall(1).args).to.deep.equal([
-                '/test/me',
-				false
+                List().push('/test/me'),
             ]);
 
             expect(typeof(testAbsolute.one)).to.equal('function');

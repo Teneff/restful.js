@@ -1,8 +1,12 @@
 import assign from 'object-assign';
+import { fromJS, List, Map } from 'immutable';
 
 export function custom(endpoint) {
     return (name, relative = true) => {
-        return member(endpoint.new(name, relative)); // eslint-disable-line no-use-before-define
+		if(relative) {
+			return member(endpoint.new(endpoint.path().push(name))); // eslint-disable-line no-use-before-define
+		}
+        return member(endpoint.new(List().push(name))); // eslint-disable-line no-use-before-define
     };
 }
 
@@ -10,7 +14,7 @@ export function collection(endpoint) {
     function _bindHttpMethod(method) {
         return (...args) => {
             const id = args.shift();
-            return member(endpoint.new([ id ]))[method](...args);  // eslint-disable-line no-use-before-define
+            return member(endpoint.new(endpoint.path().push(id)))[method](...args);  // eslint-disable-line no-use-before-define
         };
     }
 
@@ -27,8 +31,8 @@ export function collection(endpoint) {
 
 export function member(endpoint) {
     return assign(endpoint, {
-        all: (name) => collection(endpoint.new( name ) ),
+        all: (name) => collection(endpoint.new(endpoint.path().push(name))),
         custom: custom(endpoint),
-        one: (name, id) => member(endpoint.new( [name, id] )),
+        one: (name, id) => member(endpoint.new(endpoint.path().push(name, id))),
     });
 }
