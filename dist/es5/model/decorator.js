@@ -13,11 +13,16 @@ var _objectAssign = require('object-assign');
 
 var _objectAssign2 = _interopRequireDefault(_objectAssign);
 
+var _immutable = require('immutable');
+
 function custom(endpoint) {
     return function (name) {
         var relative = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
 
-        return member(endpoint['new'](name, relative)); // eslint-disable-line no-use-before-define
+        if (relative) {
+            return member(endpoint['new'](endpoint.path().push(name))); // eslint-disable-line no-use-before-define
+        }
+        return member(endpoint['new']((0, _immutable.List)().push(name))); // eslint-disable-line no-use-before-define
     };
 }
 
@@ -31,7 +36,7 @@ function collection(endpoint) {
             }
 
             var id = args.shift();
-            return (_member = member(endpoint['new']([id])))[method].apply(_member, args); // eslint-disable-line no-use-before-define
+            return (_member = member(endpoint['new'](endpoint.path().push(id))))[method].apply(_member, args); // eslint-disable-line no-use-before-define
         };
     }
 
@@ -49,11 +54,11 @@ function collection(endpoint) {
 function member(endpoint) {
     return (0, _objectAssign2['default'])(endpoint, {
         all: function all(name) {
-            return collection(endpoint['new'](name));
+            return collection(endpoint['new'](endpoint.path().push(name)));
         },
         custom: custom(endpoint),
         one: function one(name, id) {
-            return member(endpoint['new']([name, id]));
+            return member(endpoint['new'](endpoint.path().push(name, id)));
         }
     });
 }

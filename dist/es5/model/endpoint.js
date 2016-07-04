@@ -39,7 +39,7 @@ exports['default'] = function (request) {
                 params: params,
                 requestInterceptors: (0, _immutable.List)(scope.get('requestInterceptors')),
                 responseInterceptors: (0, _immutable.List)(scope.get('responseInterceptors')),
-                url: Promise.all(scope.get('path')).then(function (path) {
+                url: Promise.all(scope.get('path', false)).then(function (path) {
                     return path.join(PATH_SEPARATOR);
                 })
             });
@@ -130,24 +130,22 @@ exports['default'] = function (request) {
             headers: function headers() {
                 return scope.get('headers');
             },
-            'new': function _new(path) {
-                var relative = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
+            'new': function _new() {
+                for (var _len = arguments.length, path = Array(_len), _key = 0; _key < _len; _key++) {
+                    path[_key] = arguments[_key];
+                }
 
                 var childScope = scope['new']();
 
-                if (path) {
-                    if (typeof path === 'string') {
-                        path = path.trim(PATH_SEPARATOR).split(PATH_SEPARATOR);
-                    }
-
-                    if (!relative) {
-                        childScope.set('path', (0, _immutable.List)());
-                    }
-
-                    path.forEach(function (item) {
+                path.forEach(function (item) {
+                    if (_immutable.Iterable.isIterable(item)) {
+                        item.forEach(function (subitem) {
+                            return childScope.push('path', subitem);
+                        });
+                    } else {
                         childScope.push('path', item);
-                    });
-                }
+                    }
+                });
 
                 return endpointFactory(childScope);
             },
@@ -157,9 +155,9 @@ exports['default'] = function (request) {
             post: _httpMethodFactory('POST'),
             put: _httpMethodFactory('PUT'),
             path: function path() {
-                return scope.get('path');
+                return scope.get('path', false);
             },
-            url: Promise.all(scope.get('path')).then(function (path) {
+            url: Promise.all(scope.get('path', false)).then(function (path) {
                 return path.join(PATH_SEPARATOR);
             })
         });

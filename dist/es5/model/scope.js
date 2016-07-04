@@ -32,17 +32,19 @@ function scopeFactory(parentScope) {
             }
         },
         get: function get(key) {
+            var deep = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
+
             var datum = _data.get(key);
 
             if (scope.has(key) && !_immutable.Iterable.isIterable(datum) || !parentScope) {
                 return datum;
             } else if (!scope.has(key) && parentScope) {
-                return parentScope.get(key);
+                return parentScope.get(key, deep);
             }
 
-            var parentDatum = parentScope.get(key);
+            var parentDatum = parentScope.get(key, deep);
 
-            if (!parentDatum) {
+            if (!deep || !parentDatum) {
                 return datum;
             }
 
