@@ -1,5 +1,8 @@
 import api from '../mock/api';
-import { expect } from 'chai';
+import chai, { expect } from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+chai.use( chaiAsPromised );
+
 import nock from 'nock';
 import request from 'request';
 import fetch from 'whatwg-fetch';
@@ -40,10 +43,20 @@ describe('Restful', () => {
 
 	it('should create an endpoint with promise', () => {
 		const client = restful(Promise.resolve('http://url'));
-		expect(client.url).to.eventually.equal('http://urlx');
 
 		const endpoint = client.all('test');
-		endpoint.url.should.to.eventually.equal('http://url/test');
+		const endpointCustom = client.custom('test2');
+
+		return Promise.all([
+			client.url,
+			endpoint.url,
+			endpointCustom.url
+		])
+		.then(([ client_url, endpoint_url, endpointCustom_url ]) => {
+			client_url.should.equal('http://url');
+			endpoint_url.should.equal('http://url/test');
+			endpointCustom_url.should.equal('http://url/test2');
+		});
 	});
 
     it('should work with a real API', (done) => {
