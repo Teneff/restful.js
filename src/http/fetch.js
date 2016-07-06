@@ -26,7 +26,15 @@ export default function (fetch) {
 			delete config.url;
 
 	        if (config.data) {
-	            config.body = /application\/json/.test(config.headers['Content-Type']) ? JSON.stringify(config.data) : config.data;
+				if( /application\/json/.test(config.headers['Content-Type']) ) {
+					config.body = JSON.stringify(config.data);
+				}
+				else if( /application\/x-www-form-urlencoded/.test(config.headers['Content-Type']) ) {
+					config.body = qs.stringify(config.data, { arrayFormat: 'brackets' });
+				}
+				else {
+					config.body = config.data;
+				}
 	            delete config.data;
 	        }
 

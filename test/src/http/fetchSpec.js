@@ -169,6 +169,39 @@ describe('Fetch HTTP Backend', () => {
         .catch(done);
     });
 
+	it('should correctly stringify the request body', () => {
+		httpBackend({
+			data: {
+				'array': [
+					'element1',
+					'element2'
+				],
+				'object': {
+					'element1': {
+						'k1': 'v1',
+						'k2': 'v2'
+					}
+				}
+			},
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			},
+			url: Promise.resolve('/url'),
+		})
+		.then(() => {
+			console.log(fetch.getCall(0).args);
+			expect(fetch.getCall(0).args).to.deep.equal([
+				'/url',
+	            {
+	                body: encodeURI('array[]=element1&array[]=element2&object[element1][k1]=v1&object[element1][k2]=v2'),
+	                headers: {
+						'Content-Type': 'application/x-www-form-urlencoded'
+	                },
+	            },
+			]);
+		});
+	});
+
     it('should correctly stringify the query string', () => {
         var request1 = httpBackend({
             data: {
