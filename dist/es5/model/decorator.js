@@ -57,8 +57,10 @@ function member(endpoint) {
             return collection(endpoint['new'](endpoint.path().push(name)));
         },
         custom: custom(endpoint),
-        one: function one(name, id) {
-            return member(endpoint['new'](endpoint.path().push(name, id)));
+        one: function one() {
+            var _endpoint$path;
+
+            return member(endpoint['new']((_endpoint$path = endpoint.path()).push.apply(_endpoint$path, arguments)));
         }
     });
 }

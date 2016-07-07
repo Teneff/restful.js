@@ -33,6 +33,6 @@ export function member(endpoint) {
     return assign(endpoint, {
         all: (name) => collection(endpoint.new(endpoint.path().push(name))),
         custom: custom(endpoint),
-        one: (name, id) => member(endpoint.new(endpoint.path().push(name, id))),
+        one: (...args) => member(endpoint.new( endpoint.path().push(...args) )),
     });
 }
