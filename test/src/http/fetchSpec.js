@@ -189,7 +189,6 @@ describe('Fetch HTTP Backend', () => {
 			url: Promise.resolve('/url'),
 		})
 		.then(() => {
-			console.log(fetch.getCall(0).args);
 			expect(fetch.getCall(0).args).to.deep.equal([
 				'/url',
 	            {
